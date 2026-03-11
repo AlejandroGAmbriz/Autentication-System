@@ -1,10 +1,9 @@
 import sqlite3
 from datetime import datetime
-
-DB_NAME = "data_base_request.db"
+from constants import DB_REQUEST
 
 def get_connection():
-    return sqlite3.connect(DB_NAME)
+    return sqlite3.connect(DB_REQUEST)
 
 def create_database():
     """

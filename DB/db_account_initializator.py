@@ -1,6 +1,6 @@
 import sqlite3
 import bcrypt
-from constants import DB_ACCOUNT
+from classes.constants import DB_ACCOUNT
 
 def hash_password(password: str) -> str:
     """

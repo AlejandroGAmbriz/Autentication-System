@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Requests</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .hidden { display: none; }
+        .btn { padding: 10px; margin: 5px; }
+        #requests { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <!-- Pantalla de Login -->
+    <div id="login-screen">
+        <h2>Iniciar Sesión</h2>
+        <form id="login-form">
+            <label>Email:</label><br>
+            <input type="text" id="email" required><br><br>
+            <label>Contraseña:</label><br>
+            <input type="password" id="password" required><br><br>
+            <button type="submit">Ingresar</button>
+        </form>
+        <p id="login-error" style="color:red;"></p>
+    </div>
+
+    <!-- Pantalla principal -->
+    <div id="main-screen" class="hidden">
+        <h2>Bienvenido</h2>
+        <p>Rol: <span id="user-role"></span></p>
+
+        <!-- Botones dinámicos -->
+        <button id="btn-create" class="btn">Crear Request</button>
+        <button id="btn-view" class="btn">Ver Request</button>
+        <button id="btn-modify" class="btn">Modificar Estado</button>
+        <button id="btn-delete" class="btn">Eliminar Request</button>
+
+        <!-- Sección de Requests -->
+        <div id="requests">
+            <h3>Requests</h3>
+            <div id="request-list"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentEmail = "";
+        let currentPassword = "";
+
+        document.getElementById("login-form").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (!response.ok) {
+                    document.getElementById("login-error").textContent = "Credenciales inválidas";
+                    return;
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    currentEmail = email;
+                    currentPassword = password;
+                    loginSuccess(data.role);
+                } else {
+                    document.getElementById("login-error").textContent = "Credenciales inválidas";
+                }
+            } catch (error) {
+                document.getElementById("login-error").textContent = "Error de conexión con el servidor";
+            }
+        });
+
+        function loginSuccess(role) {
+            document.getElementById("login-screen").classList.add("hidden");
+            document.getElementById("main-screen").classList.remove("hidden");
+            document.getElementById("user-role").textContent = role;
+
+            document.getElementById("btn-create").disabled = !(["client","employee","admin"].includes(role));
+            document.getElementById("btn-view").disabled = !(["client","employee","admin"].includes(role));
+            document.getElementById("btn-modify").disabled = !(["employee","admin"].includes(role));
+            document.getElementById("btn-delete").disabled = !(role === "admin");
+        }
+    </script>
+</body>
+</html>

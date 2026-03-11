@@ -20,9 +20,9 @@ class SystemActions():
         self.conn_request.commit()
 
     def log_verification(self) -> bool:
-        """Chcek if the password and the user are in the DB(the password have to be hashed)"""
+        """Check if the password and the user are in the DB (the password must be hashed)."""
         self.cursor_account.execute(
-            "SELECT password, role FROM usuarios WHERE email = ?", 
+            "SELECT password, type FROM usuarios WHERE email = ?",
             (self.user,)
         )
         resultado = self.cursor_account.fetchone()
@@ -30,10 +30,10 @@ class SystemActions():
         if resultado is None:
             return False
 
-        hashed_password, role = resultado
+        hashed_password, user_type = resultado
 
-        if bcrypt.checkpw(self.password.encode("utf-8"), hashed_password):
-            self.role = role
+        if bcrypt.checkpw(self.password.encode("utf-8"), hashed_password.encode("utf-8")):
+            self.role = user_type
             return True
 
         return False
